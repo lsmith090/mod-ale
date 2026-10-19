@@ -763,6 +763,19 @@ bool ALE::CanPlayerLearnSpell(Player* player, uint32 spellId)
     return CallAllFunctionsBool(PlayerEventBindings, key, true);
 }
 
+bool ALE::CanPlayerEnterMap(Player* player, uint32 mapId, uint32 instanceId, bool isRaid, char const* mapName, bool loginCheck)
+{
+    START_HOOK_WITH_RETVAL(PLAYER_EVENT_ON_CAN_ENTER_MAP, true);
+    Push(player);
+    Push(mapId);
+    Push(instanceId);
+    Push(isRaid);
+    Push(mapName);
+    Push(loginCheck);
+    // true unless a handler returns false: handlers AND, and a nil (an error in the script) refuses nothing
+    return CallAllFunctionsBool(PlayerEventBindings, key, true);
+}
+
 bool ALE::CanPlayerResurrect(Player* player)
 {
     START_HOOK_WITH_RETVAL(PLAYER_EVENT_ON_CAN_RESURRECT, true);

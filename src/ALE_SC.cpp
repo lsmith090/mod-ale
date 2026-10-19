@@ -17,6 +17,7 @@
 
 #include "Chat.h"
 #include "ALEEventMgr.h"
+#include "InstanceSaveMgr.h"
 #include "Log.h"
 #include "LuaEngine.h"
 #include "Pet.h"
@@ -650,6 +651,7 @@ public:
         PLAYERHOOK_CAN_RESURRECT,
         PLAYERHOOK_CAN_LEARN_SPELL,
         PLAYERHOOK_ON_GET_TRAINER_SPELL_STATE,
+        PLAYERHOOK_CAN_ENTER_MAP,
         PLAYERHOOK_ON_PLAYER_RELEASED_GHOST
     }) { }
 
@@ -991,6 +993,20 @@ public:
         // ALE's Player binding takes a mutable pointer; the Lua predicate must only read it.
         if (state != Trainer::SpellState::Known && !OnPlayerCanLearnSpell(const_cast<Player*>(player), spellId))
             state = Trainer::SpellState::Unavailable;
+    }
+
+    // The core asks this for each dungeon or raid entry it checks (a portal, a teleport, a summon, the login), after its
+    // own GM-mode bypass. Scripts learn the instance the player would enter, as PlayerCannotEnter works it out: 0 is a
+    // new one.
+    bool OnPlayerCanEnterMap(Player* player, MapEntry const* entry, InstanceTemplate const* /*instance*/,
+        MapDifficulty const* /*mapDiff*/, bool loginCheck) override
+    {
+        if (!ALEConfig::GetInstance().IsCanEnterMapEventEnabled())
+            return true;
+        uint32 instanceId = sInstanceSaveMgr->PlayerGetDestinationInstanceId(player, entry->MapID,
+            player->GetDifficulty(entry->IsRaid()));
+        return sALE->CanPlayerEnterMap(player, entry->MapID, instanceId, entry->IsRaid(),
+            entry->name[player->GetSession()->GetSessionDbcLocale()], loginCheck);
     }
 
     bool OnPlayerCanResurrect(Player* player) override

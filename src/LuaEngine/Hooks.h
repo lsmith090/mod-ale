@@ -240,6 +240,7 @@ namespace Hooks
         PLAYER_EVENT_ON_RELEASED_GHOST                      =     73,       // (event, player)
 
         PLAYER_EVENT_ON_CAN_LEARN_SPELL                    =     74,       // (event, player, spellId): return an explicit boolean; also checks trainer offers
+        PLAYER_EVENT_ON_CAN_ENTER_MAP                      =     75,       // (event, player, mapId, instanceId, isRaid, mapName, loginCheck): instanceId is the one entered, 0 a new one; return an explicit boolean; only with ALE.CanEnterMapEvent
 
         PLAYER_EVENT_COUNT
     };

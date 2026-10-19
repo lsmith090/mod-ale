@@ -510,6 +510,7 @@ public:
     void OnPlayerUpdateSkill(Player* player, uint32 skill_id, uint32 value, uint32 max, uint32 step, uint32 new_value);
     bool CanPlayerResurrect(Player* player);
     bool CanPlayerLearnSpell(Player* player, uint32 spellId);
+    bool CanPlayerEnterMap(Player* player, uint32 mapId, uint32 instanceId, bool isRaid, char const* mapName, bool loginCheck);
     void OnPlayerQuestAccept(Player* player, Quest const* quest);
     void OnPlayerAuraApply(Player* player, Aura* aura);
     void OnPlayerAuraRemove(Player* player, Aura* aura, AuraRemoveMode mode);

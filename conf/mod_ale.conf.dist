@@ -52,6 +52,14 @@
 #                    Higher values reduce CPU usage but increase detection delay.
 #       Default:    1 - (check every 1 second)
 #
+#   ALE.CanEnterMapEvent
+#       Description: Enable or disable player event 75 (PLAYER_EVENT_ON_CAN_ENTER_MAP), a veto on entering a
+#                    dungeon or raid. Scripts get the map, the instance the player would enter (0 for a new one),
+#                    whether it is a raid, its name and whether it is the login check, and return a boolean.
+#                    A game master in GM mode never reaches it.
+#       Default:    false - (disabled)
+#                   true  - (enabled)
+#
 #   ALE.BytecodeCache
 #       Description: Enable or disable bytecode caching for improved performance.
 #                    When enabled, Lua/MoonScript files are compiled to bytecode and cached in memory.
@@ -69,6 +77,7 @@ ALE.RequireCPaths = ""
 ALE.AutoReload = false
 ALE.AutoReloadInterval = 1
 ALE.BytecodeCache = true
+ALE.CanEnterMapEvent = false
 
 ###################################################################################################
 # LOGGING SYSTEM SETTINGS
