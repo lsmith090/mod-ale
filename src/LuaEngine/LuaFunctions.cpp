@@ -187,6 +187,7 @@ luaL_Reg GlobalMethods[] =
     { "Ban", &LuaGlobalFunctions::Ban },
     { "SaveAllPlayers", &LuaGlobalFunctions::SaveAllPlayers },
     { "SendMail", &LuaGlobalFunctions::SendMail },
+    { "CancelAuctionsOf", &LuaGlobalFunctions::CancelAuctionsOf },
     { "AddTaxiPath", &LuaGlobalFunctions::AddTaxiPath },
     { "CreateInt64", &LuaGlobalFunctions::CreateLongLong },
     { "CreateUint64", &LuaGlobalFunctions::CreateULongLong },

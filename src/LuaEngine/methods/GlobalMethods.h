@@ -2133,6 +2133,52 @@ namespace LuaGlobalFunctions
     }
 
     /**
+     * Cancels every auction a character has listed, in all three houses, as the owner's own cancel does but with no
+     * cut taken: a bidder gets the bid back by mail and the item goes back to the owner by mail. Works while the
+     * owner is offline. Local patch (agent-wow): a hardcore character's death ends its auctions.
+     *
+     * @param uint32 ownerGUIDLow : low GUID of the character whose auctions end
+     * @return uint32 cancelled : how many auctions were cancelled
+     */
+    int CancelAuctionsOf(lua_State* L)
+    {
+        ObjectGuid owner = ObjectGuid::Create<HighGuid::Player>(ALE::CHECKVAL<uint32>(L, 1));
+        Player* online = ObjectAccessor::FindConnectedPlayer(owner);
+        uint32 cancelled = 0;
+        for (AuctionHouseId houseId : { AuctionHouseId::Alliance, AuctionHouseId::Horde, AuctionHouseId::Neutral })
+        {
+            AuctionHouseObject* house = sAuctionMgr->GetAuctionsMapByHouseId(houseId);
+            std::vector<AuctionEntry*> theirs;   // collected first: RemoveAuction erases from the map
+            for (auto const& [id, auction] : house->GetAuctions())
+                if (auction->owner == owner)
+                    theirs.push_back(auction);
+            for (AuctionEntry* auction : theirs)
+            {
+                // WorldSession::HandleAuctionRemoveItem without the session: no cut, no packet
+                Item* item = sAuctionMgr->GetAItem(auction->item_guid);
+                if (!item)
+                    continue;
+                CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+                if (auction->bidder)
+                    sAuctionMgr->SendAuctionCancelledToBidderMail(auction, trans);
+                if (online || sCharacterCache->GetCharacterAccountIdByGuid(owner))
+                    MailDraft(auction->BuildAuctionMailSubject(AUCTION_CANCELED), AuctionEntry::BuildAuctionMailBody(ObjectGuid::Empty, 0, auction->buyout, auction->deposit))
+                        .AddItem(item)
+                        .SendMailTo(trans, MailReceiver(online, owner.GetCounter()), auction, MAIL_CHECK_MASK_COPIED);
+                else   // the character is gone: the item goes too, as SendAuctionExpiredMail does
+                    sAuctionMgr->RemoveAItem(auction->item_guid, true, &trans);
+                auction->DeleteFromDB(trans);
+                CharacterDatabase.CommitTransaction(trans);
+                sAuctionMgr->RemoveAItem(auction->item_guid);
+                house->RemoveAuction(auction);
+                ++cancelled;
+            }
+        }
+        ALE::Push(L, cancelled);
+        return 1;
+    }
+
+    /**
      * Sends mail to a [Player].
      *
      * There can be several item entry-amount pairs at the end of the function.
