@@ -239,6 +239,8 @@ namespace Hooks
         PLAYER_EVENT_ON_DEAL_DAMAGE                         =     72,       // (event, player, target, damage, damagetype) - Can return new damage amount
         PLAYER_EVENT_ON_RELEASED_GHOST                      =     73,       // (event, player)
 
+        PLAYER_EVENT_ON_CAN_LEARN_SPELL                    =     74,       // (event, player, spellId): return an explicit boolean; also checks trainer offers
+
         PLAYER_EVENT_COUNT
     };
 

@@ -754,6 +754,15 @@ void ALE::OnPlayerUpdateSkill(Player* player, uint32 skill_id, uint32 value, uin
     CallAllFunctions(PlayerEventBindings, key);
 }
 
+bool ALE::CanPlayerLearnSpell(Player* player, uint32 spellId)
+{
+    START_HOOK_WITH_RETVAL(PLAYER_EVENT_ON_CAN_LEARN_SPELL, true);
+    Push(player);
+    Push(spellId);
+    // true unless a handler returns false: handlers AND, and a nil (an error in the script) refuses nothing
+    return CallAllFunctionsBool(PlayerEventBindings, key, true);
+}
+
 bool ALE::CanPlayerResurrect(Player* player)
 {
     START_HOOK_WITH_RETVAL(PLAYER_EVENT_ON_CAN_RESURRECT, true);

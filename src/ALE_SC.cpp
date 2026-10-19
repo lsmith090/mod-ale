@@ -23,6 +23,10 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedGossip.h"
+#include "SpellMgr.h"
+#include "Trainer.h"
+#include <unordered_set>
+#include <vector>
 
 class ALE_AllCreatureScript : public AllCreatureScript
 {
@@ -644,6 +648,8 @@ public:
         PLAYERHOOK_ON_BEFORE_UPDATE_SKILL,
         PLAYERHOOK_ON_UPDATE_SKILL,
         PLAYERHOOK_CAN_RESURRECT,
+        PLAYERHOOK_CAN_LEARN_SPELL,
+        PLAYERHOOK_ON_GET_TRAINER_SPELL_STATE,
         PLAYERHOOK_ON_PLAYER_RELEASED_GHOST
     }) { }
 
@@ -955,6 +961,36 @@ public:
     void OnPlayerUpdateSkill(Player* player, uint32 skill_id, uint32 value, uint32 max, uint32 step, uint32 new_value) override
     {
         sALE->OnPlayerUpdateSkill(player, skill_id, value, max, step, new_value);
+    }
+
+    // Check trainer wrappers as well as their learned spells before payment. The core also calls
+    // this hook for direct learns, including the playerbot factory. Cycles in spell data terminate.
+    bool OnPlayerCanLearnSpell(Player* player, uint32 spellId) override
+    {
+        std::vector<uint32> pending{spellId};
+        std::unordered_set<uint32> visited;
+        while (!pending.empty())
+        {
+            uint32 id = pending.back();
+            pending.pop_back();
+            if (!visited.insert(id).second)
+                continue;
+            if (!sALE->CanPlayerLearnSpell(player, id))
+                return false;
+            if (SpellInfo const* info = sSpellMgr->GetSpellInfo(id))
+                for (SpellEffectInfo const& effect : info->GetEffects())
+                    if (effect.IsEffect(SPELL_EFFECT_LEARN_SPELL) && effect.TriggerSpell)
+                        pending.push_back(effect.TriggerSpell);
+        }
+        return true;
+    }
+
+    void OnPlayerGetTrainerSpellState(Player const* player, uint32 /*trainerId*/, uint32 spellId,
+        Trainer::SpellState& state) override
+    {
+        // ALE's Player binding takes a mutable pointer; the Lua predicate must only read it.
+        if (state != Trainer::SpellState::Known && !OnPlayerCanLearnSpell(const_cast<Player*>(player), spellId))
+            state = Trainer::SpellState::Unavailable;
     }
 
     bool OnPlayerCanResurrect(Player* player) override
