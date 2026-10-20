@@ -472,6 +472,7 @@ public:
     void OnFreeTalentPointsChanged(Player* pPlayer, uint32 newPoints);
     void OnTalentsReset(Player* pPlayer, bool noCost);
     void OnMoneyChanged(Player* pPlayer, int32& amount);
+    void OnAfterMoneyChanged(Player* player, uint32 before, uint32 after, uint8 source);
     void OnGiveXP(Player* pPlayer, uint32& amount, Unit* pVictim, uint8 xpSource);
     bool OnReputationChange(Player* pPlayer, uint32 factionID, int32& standing, bool incremental);
     void OnDuelRequest(Player* pTarget, Player* pChallenger);

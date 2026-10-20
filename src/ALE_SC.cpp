@@ -614,6 +614,7 @@ public:
         PLAYERHOOK_ON_FREE_TALENT_POINTS_CHANGED,
         PLAYERHOOK_ON_TALENTS_RESET,
         PLAYERHOOK_ON_MONEY_CHANGED,
+        PLAYERHOOK_ON_AFTER_MONEY_CHANGED,
         PLAYERHOOK_ON_GIVE_EXP,
         PLAYERHOOK_ON_REPUTATION_CHANGE,
         PLAYERHOOK_ON_DUEL_REQUEST,
@@ -793,6 +794,11 @@ public:
     void OnPlayerMoneyChanged(Player* player, int32& amount) override
     {
         sALE->OnMoneyChanged(player, amount);
+    }
+
+    void OnPlayerAfterMoneyChanged(Player* player, uint32 before, uint32 after, uint8 source) override
+    {
+        sALE->OnAfterMoneyChanged(player, before, after, source);
     }
 
     void OnPlayerGiveXP(Player* player, uint32& amount, Unit* victim, uint8 xpSource) override
