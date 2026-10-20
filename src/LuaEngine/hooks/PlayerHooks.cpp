@@ -996,3 +996,13 @@ uint32 ALE::OnPlayerDealDamage(Player* player, Unit* target, uint32 damage, Dama
     CleanUpStack(4);
     return result;
 }
+
+void ALE::OnAfterMoneyChanged(Player* player, uint32 before, uint32 after, uint8 source)
+{
+    START_HOOK(PLAYER_EVENT_ON_AFTER_MONEY_CHANGE);
+    Push(player);
+    Push(before);
+    Push(after);
+    Push(source);
+    CallAllFunctions(PlayerEventBindings, key);
+}

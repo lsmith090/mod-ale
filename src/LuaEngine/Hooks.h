@@ -242,6 +242,8 @@ namespace Hooks
         PLAYER_EVENT_ON_CAN_LEARN_SPELL                    =     74,       // (event, player, spellId): return an explicit boolean; also checks trainer offers
         PLAYER_EVENT_ON_CAN_ENTER_MAP                      =     75,       // (event, player, mapId, instanceId, isRaid, mapName, loginCheck): instanceId is the one entered, 0 a new one; return an explicit boolean; only with ALE.CanEnterMapEvent
 
+        PLAYER_EVENT_ON_AFTER_MONEY_CHANGE                  =     76,       // (event, player, before, after, source); observational, no replacement
+
         PLAYER_EVENT_COUNT
     };
 
